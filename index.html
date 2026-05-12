@@ -3,57 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Produção - Qualidade</title>
+    <title>Dashboard Industrial PRO</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Dashboard de Produtividade e Refugo</h1>
-        <div class="filters">
-            <div class="filter-group">
-                <label>Início:</label>
-                <input type="date" id="dateStart">
+    <div class="app-container">
+        <header>
+            <div class="logo-area">
+                <span class="icon">📊</span>
+                <h1>Intelligence Production</h1>
             </div>
-            <div class="filter-group">
-                <label>Fim:</label>
-                <input type="date" id="dateEnd">
+            
+            <div class="filters">
+                <div class="input-group">
+                    <label>De:</label>
+                    <input type="date" id="dateStart">
+                </div>
+                <div class="input-group">
+                    <label>Até:</label>
+                    <input type="date" id="dateEnd">
+                </div>
+                <div class="input-group">
+                    <label>Setor:</label>
+                    <select id="filterSetor"><option value="todos">Todos os Setores</option></select>
+                </div>
+                <button id="btnFiltrar" class="primary-btn">Atualizar Dados</button>
             </div>
-            <div class="filter-group">
-                <label>Setor:</label>
-                <select id="filterSetor"><option value="todos">Todos</option></select>
-            </div>
-            <button id="btnFiltrar">Aplicar Filtros</button>
-        </div>
-    </header>
+        </header>
 
-    <main class="dashboard-container">
-        <section class="summary-cards">
-            <div class="card">
-                <h3>Total Produzido (Peças)</h3>
-                <p id="totalProduzido" class="valor-producao">0</p>
-            </div>
-            <div class="card">
-                <h3>Total Refugo (Peças)</h3>
-                <p id="totalRefugo" class="valor-refugo">0</p>
-            </div>
-            <div class="card">
-                <h3>% Refugo</h3>
-                <p id="percentualRefugo">0%</p>
-            </div>
-        </section>
+        <main>
+            <!-- KPIs -->
+            <section class="kpi-grid">
+                <div class="kpi-card producao">
+                    <div class="kpi-icon">⚙️</div>
+                    <div class="kpi-info">
+                        <h3>Produção Total</h3>
+                        <p id="totalProduzido">0</p>
+                    </div>
+                </div>
+                <div class="kpi-card refugo">
+                    <div class="kpi-icon">🗑️</div>
+                    <div class="kpi-info">
+                        <h3>Refugo Total</h3>
+                        <p id="totalRefugo">0</p>
+                    </div>
+                </div>
+                <div class="kpi-card performance">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-info">
+                        <h3>Índice de Qualidade</h3>
+                        <p id="percentualQualidade">0%</p>
+                    </div>
+                </div>
+            </section>
 
-        <section class="charts-section">
-            <div class="chart-container">
-                <h3>Produção por Máquina</h3>
-                <canvas id="chartProdutividade"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Refugo por Setor</h3>
-                <canvas id="chartRefugo"></canvas>
-            </div>
-        </section>
-    </main>
+            <!-- Gráficos -->
+            <section class="charts-grid">
+                <div class="chart-wrapper">
+                    <div class="chart-header">
+                        <h2 id="titleProd">Produção por Máquina</h2>
+                        <button id="btnVoltarProd" class="back-btn" style="display:none">← Voltar</button>
+                    </div>
+                    <div id="chartProd" class="echart-container"></div>
+                </div>
+                <div class="chart-wrapper">
+                    <div class="chart-header">
+                        <h2 id="titleRef">Refugo por Setor</h2>
+                        <button id="btnVoltarRef" class="back-btn" style="display:none">← Voltar</button>
+                    </div>
+                    <div id="chartRef" class="echart-container"></div>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script src="assets/js/main.js"></script>
 </body>

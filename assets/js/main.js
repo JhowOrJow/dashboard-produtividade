@@ -1,120 +1,120 @@
-const API_URL = "http://localhost:3300"; // Usado apenas para o botão Sync
-let dadosProducaoOriginal = [];
-let dadosRefugoOriginal = [];
+let rawProd = [], rawRef = [];
 let chartProd, chartRef;
+let viewProd = 'maquina', viewRef = 'setor'; // Estados do Drilldown
 
-// 1. Ao carregar a página, lê os arquivos JSON
 document.addEventListener('DOMContentLoaded', async () => {
-    await carregarDadosLocais();
+    chartProd = echarts.init(document.getElementById('chartProd'), 'dark');
+    chartRef = echarts.init(document.getElementById('chartRef'), 'dark');
+
+    await carregarDados();
     
-    document.getElementById('btnFiltrar').addEventListener('click', processarDashboard);
-    document.getElementById('btnSync').addEventListener('click', sincronizarComBanco);
+    document.getElementById('btnFiltrar').onclick = processar;
+    document.getElementById('btnVoltarProd').onclick = () => { viewProd = 'maquina'; processar(); };
+    document.getElementById('btnVoltarRef').onclick = () => { viewRef = 'setor'; processar(); };
+
+    // Eventos de clique para DRILLDOWN
+    chartRef.on('click', (params) => {
+        if(viewRef === 'setor') {
+            viewRef = 'maquina_no_setor';
+            processar(params.name); // Passa o setor clicado
+        }
+    });
+
+    window.onresize = () => { chartProd.resize(); chartRef.resize(); };
 });
 
-async function carregarDadosLocais() {
+async function carregarDados() {
     try {
-        const [resProd, resRef] = await Promise.all([
-            fetch('./data/produtividade.json'),
-            fetch('./data/refugo.json')
+        const [p, r] = await Promise.all([
+            fetch('./data/produtividade.json').then(res => res.json()),
+            fetch('./data/refugo.json').then(res => res.json())
         ]);
-
-        dadosProducaoOriginal = await resProd.json();
-        dadosRefugoOriginal = await resRef.json();
-
-        popularFiltroSetor();
-        processarDashboard(); // Renderiza inicial
-    } catch (error) {
-        console.error("Erro ao carregar JSONs:", error);
-    }
+        rawProd = p; rawRef = r;
+        popularSetores();
+        processar();
+    } catch (e) { console.error("Erro ao carregar arquivos:", e); }
 }
 
-function popularFiltroSetor() {
-    const setores = [...new Set(dadosRefugoOriginal.map(i => i.Setor))];
+function popularSetores() {
+    const setores = [...new Set(rawRef.map(i => i.Setor))];
     const select = document.getElementById('filterSetor');
-    setores.forEach(setor => {
-        const opt = document.createElement('option');
-        opt.value = setor;
-        opt.textContent = setor;
-        select.appendChild(opt);
-    });
+    setores.forEach(s => select.add(new Option(s, s)));
 }
 
-function processarDashboard() {
+function processar(drilldownName = null) {
     const start = document.getElementById('dateStart').value;
     const end = document.getElementById('dateEnd').value;
     const setorSel = document.getElementById('filterSetor').value;
 
-    // Filtrar Produção
-    let prodFiltrada = dadosProducaoOriginal.filter(item => {
-        const dataItem = item.DATA.split('T')[0];
-        const bateData = (!start || dataItem >= start) && (!end || dataItem <= end);
-        return bateData;
+    const filtrar = (data, dateKey) => data.filter(i => {
+        const d = i[dateKey].split('T')[0];
+        return (!start || d >= start) && (!end || d <= end);
     });
 
-    // Filtrar Refugo
-    let refFiltrado = dadosRefugoOriginal.filter(item => {
-        const dataItem = item.Data.split('T')[0];
-        const bateData = (!start || dataItem >= start) && (!end || dataItem <= end);
-        const bateSetor = setorSel === 'todos' || item.Setor === setorSel;
-        return bateData && bateSetor;
-    });
+    const pFiltrado = filtrar(rawProd, 'DATA');
+    let rFiltrado = filtrar(rawRef, 'Data');
 
-    renderizarCards(prodFiltrada, refFiltrado);
-    renderizarGraficos(prodFiltrada, refFiltrado);
+    if(setorSel !== 'todos') rFiltrado = rFiltrado.filter(i => i.Setor === setorSel);
+
+    renderCards(pFiltrado, rFiltrado);
+    renderChartProd(pFiltrado);
+    renderChartRef(rFiltrado, drilldownName);
 }
 
-function renderizarCards(prod, ref) {
-    const totalP = prod.reduce((sum, item) => sum + item.QUANTIDADE, 0);
-    const totalR = ref.reduce((sum, item) => sum + item.Qtde_Total, 0);
-    const perc = totalP > 0 ? ((totalR / totalP) * 100).toFixed(2) : 0;
+function renderCards(p, r) {
+    const totP = p.reduce((a, b) => a + b.QUANTIDADE, 0);
+    const totR = r.reduce((a, b) => a + b.Qtde_Total, 0);
+    const qual = totP > 0 ? (100 - (totR / totP * 100)).toFixed(1) : 100;
 
-    document.getElementById('totalProduzido').innerText = totalP.toLocaleString();
-    document.getElementById('totalRefugo').innerText = totalR.toLocaleString();
-    document.getElementById('percentualRefugo').innerText = perc + "%";
+    document.getElementById('totalProduzido').innerText = totP.toLocaleString();
+    document.getElementById('totalRefugo').innerText = totR.toLocaleString();
+    document.getElementById('percentualQualidade').innerText = qual + "%";
 }
 
-function renderizarGraficos(prod, ref) {
-    // Agrupar Prod por Máquina
-    const maqMap = {};
-    prod.forEach(i => maqMap[i.MAQUINA] = (maqMap[i.MAQUINA] || 0) + i.QUANTIDADE);
-
-    // Agrupar Ref por Setor
-    const setorMap = {};
-    ref.forEach(i => setorMap[i.Setor] = (setorMap[i.Setor] || 0) + i.Qtde_Total);
-
-    if (chartProd) chartProd.destroy();
-    if (chartRef) chartRef.destroy();
-
-    const ctxP = document.getElementById('chartProdutividade').getContext('2d');
-    chartProd = new Chart(ctxP, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(maqMap),
-            datasets: [{ label: 'Qtd Produzida', data: Object.values(maqMap), backgroundColor: '#4caf50' }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
-
-    const ctxR = document.getElementById('chartRefugo').getContext('2d');
-    chartRef = new Chart(ctxR, {
-        type: 'pie',
-        data: {
-            labels: Object.keys(setorMap),
-            datasets: [{ data: Object.values(setorMap), backgroundColor: ['#f44336', '#ff9800', '#2196f3', '#9c27b0'] }]
-        }
-    });
+function renderChartProd(data) {
+    const group = {};
+    data.forEach(i => group[i.MAQUINA] = (group[i.MAQUINA] || 0) + i.QUANTIDADE);
+    
+    const options = {
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: Object.keys(group), axisLabel: { rotate: 45 } },
+        yAxis: { type: 'value' },
+        series: [{ data: Object.values(group), type: 'bar', itemStyle: { color: '#10b981' }, showBackground: true, backgroundStyle: { color: 'rgba(180, 180, 180, 0.1)' } }]
+    };
+    chartProd.setOption(options);
 }
 
-// Essa função só funcionará se o Node estiver rodando localmente
-async function sincronizarComBanco() {
-    const start = document.getElementById('dateStart').value;
-    const end = document.getElementById('dateEnd').value;
-    if (!start || !end) return alert("Selecione as datas para sincronizar!");
+function renderChartRef(data, drillName) {
+    let group = {}, title = "Refugo por Setor", label = "Setores";
+    const btn = document.getElementById('btnVoltarRef');
 
-    try {
-        await fetch(`${API_URL}/api/sync-prod?start=${start}&end=${end}`);
-        await fetch(`${API_URL}/api/sync-scrap?start=${start}&end=${end}`);
-        alert("Arquivos JSON atualizados com sucesso!");
-        location.reload();
-    } catch (e) { alert("Erro: O servidor Node.js não está respondendo."); }
+    if (viewRef === 'setor') {
+        data.forEach(i => group[i.Setor] = (group[i.Setor] || 0) + i.Qtde_Total);
+        btn.style.display = 'none';
+    } else {
+        // DRILLDOWN: Mostra máquinas apenas do setor clicado
+        const filtered = data.filter(i => i.Setor === drillName);
+        filtered.forEach(i => group[i.Cod_Maquina] = (group[i.Cod_Maquina] || 0) + i.Qtde_Total);
+        title = `Máquinas em: ${drillName}`;
+        btn.style.display = 'block';
+    }
+
+    document.getElementById('titleRef').innerText = title;
+
+    const chartData = Object.entries(group).map(([name, value]) => ({ name, value }));
+
+    const options = {
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'item' },
+        series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            avoidLabelOverlap: false,
+            itemStyle: { borderRadius: 10, borderColor: '#0f172a', borderWidth: 2 },
+            label: { show: true, color: '#fff' },
+            data: chartData
+        }]
+    };
+    chartRef.setOption(options, true);
 }
