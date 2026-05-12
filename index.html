@@ -3,82 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Industrial PRO</title>
+    <title>Production BI - Magna</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Apache ECharts -->
+    <!-- ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <header>
-            <div class="logo-area">
-                <span class="icon">📊</span>
-                <h1>Intelligence Production</h1>
+        <header class="row mx-0">
+            <div class="col-12 col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+                <div class="logo-area"><h1>KPI PRODUTIVIDADE 2025-2026</h1></div>
+            </div>
+
+            <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+                <nav class="tabs-nav justify-content-center">
+                    <button id="btnTabGeral" class="tab-btn active" onclick="switchTab('geral')">Visão Geral</button>
+                    <button id="btnTabMensal" class="tab-btn" onclick="switchTab('mensal')">Comparativo 25 vs 26</button>
+                </nav>
             </div>
             
-            <div class="filters">
-                <div class="input-group">
-                    <label>De:</label>
-                    <input type="date" id="dateStart">
+            <div class="col-12 col-lg-5">
+                <div class="filters-panel">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small text-uppercase">Início</label>
+                            <input type="date" id="dateStart" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label small text-uppercase">Fim</label>
+                            <input type="date" id="dateEnd" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-8 col-md-4">
+                            <label class="form-label small text-uppercase">Setor</label>
+                            <select id="filterSetor" class="form-select form-select-sm">
+                                <option value="todos">Todos os Setores</option>
+                            </select>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <button id="btnFiltrar" class="btn btn-info btn-sm w-100 fw-bold">OK</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Até:</label>
-                    <input type="date" id="dateEnd">
-                </div>
-                <div class="input-group">
-                    <label>Setor:</label>
-                    <select id="filterSetor"><option value="todos">Todos os Setores</option></select>
-                </div>
-                <button id="btnFiltrar" class="primary-btn">Atualizar Dados</button>
             </div>
         </header>
 
         <main>
-            <!-- KPIs -->
-            <section class="kpi-grid">
-                <div class="kpi-card producao">
-                    <div class="kpi-icon">⚙️</div>
-                    <div class="kpi-info">
-                        <h3>Produção Total</h3>
-                        <p id="totalProduzido">0</p>
+            <!-- ABA 1: VISÃO GERAL -->
+            <div id="tab-geral" class="tab-content active">
+                <div class="row g-4 mb-4">
+                    <div class="col-12 col-md-4">
+                        <div class="kpi-card producao">
+                            <div class="kpi-icon-container">
+                                <!-- SVG PROD -->
+                                <svg viewBox="0 0 32 32" enable-background="new 0 0 32 32" id="Filled_Line" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M27.758,10.366l-1-1.732c-0.552-0.957-1.775-1.284-2.732-0.732L23.5,8.206 C21.5,9.36,19,7.917,19,5.608V5c0-1.105-0.895-2-2-2h-2c-1.105,0-2,0.895-2,2v0.608c0,2.309-2.5,3.753-4.5,2.598L7.974,7.902 C7.017,7.35,5.794,7.677,5.242,8.634l-1,1.732c-0.552,0.957-0.225,2.18,0.732,2.732L5.5,13.402c2,1.155,2,4.041,0,5.196 l-0.526,0.304c-0.957,0.552-1.284,1.775-0.732,2.732l1,1.732c0.552,0.957,1.775,1.284,2.732,0.732L8.5,23.794 c2-1.155,4.5,0.289,4.5,2.598V27c0,1.105,0.895,2,2,2h2c1.105,0,2-0.895,2-2v-0.608c0-2.309,2.5-3.753,4.5-2.598l0.526,0.304 c0.957,0.552,2.18,0.225,2.732-0.732l1-1.732c0.552-0.957,0.225-2.18-0.732-2.732L26.5,18.598c-2-1.155-2-4.041,0-5.196l0.526-0.304 C27.983,12.546,28.311,11.323,27.758,10.366z" fill="#B83B5E" id="XMLID_933_"></path><circle cx="15.513" cy="16.5" fill="#8A2C47" id="XMLID_935_" r="5"></circle><circle cx="16" cy="16" fill="#FFFFFF" id="XMLID_858_" r="5"></circle><path d="M7.242,23.366l-1-1.732c-0.552-0.957-0.225-2.18,0.732-2.732L7.5,18.598 c2-1.155,2-4.041,0-5.196l-0.526-0.304c-0.957-0.552-1.284-1.775-0.732-2.732l1-1.732c0.183-0.317,0.444-0.558,0.74-0.727 L7.974,7.902C7.017,7.35,5.794,7.677,5.242,8.634l-1,1.732c-0.552,0.957-0.225,2.18,0.732,2.732L5.5,13.402c2,1.155,2,4.041,0,5.196 l-0.526,0.304c-0.957,0.552-1.284,1.775-0.732,2.732l1,1.732c0.552,0.957,1.775,1.284,2.732,0.732l0.008-0.005 C7.686,23.924,7.425,23.683,7.242,23.366z" fill="#8A2C47" id="XMLID_373_"></path><path d="M15,27v-0.608c0-2.121-2.108-3.505-4.001-2.824C12.125,23.971,13,25.028,13,26.392V27 c0,1.105,0.895,2,2,2h2C15.895,29,15,28.105,15,27z" fill="#8A2C47" id="XMLID_374_"></path><path d="M14,5h2c1.105,0,2,0.895,2,2v0.608c0,2.309,2.5,3.753,4.5,2.598l0.526-0.304 c0.957-0.552,2.18-0.225,2.732,0.732l1,1.732c0.136,0.236,0.218,0.488,0.251,0.742l0.017-0.01c0.957-0.552,1.284-1.775,0.732-2.732 l-1-1.732c-0.552-0.957-1.775-1.284-2.732-0.732L23.5,8.206C21.5,9.36,19,7.917,19,5.608V5c0-1.105-0.895-2-2-2h-2 c-1.105,0-2,0.895-2,2v0.277C13.295,5.106,13.634,5,14,5z" fill="#C6627E" id="XMLID_375_"></path><path d="M27.026,18.902L26.5,18.598c-1.078-0.622-1.555-1.746-1.471-2.832 c-1.494,1.309-1.35,3.781,0.471,4.832l0.526,0.304c0.741,0.428,1.099,1.258,0.968,2.055l0.764-1.323 C28.311,20.677,27.983,19.454,27.026,18.902z" fill="#C6627E" id="XMLID_376_"></path><path d="M4.242,10.634C4.794,9.677,6.017,9.35,6.974,9.902L7.5,10.206 c1.928,1.113,4.313-0.19,4.483-2.354c-0.912,0.8-2.286,1.045-3.483,0.354L7.974,7.902C7.017,7.35,5.794,7.677,5.242,8.634l-1,1.732 c-0.124,0.215-0.198,0.445-0.236,0.676L4.242,10.634z" fill="#C6627E" id="XMLID_377_"></path><circle cx="16" cy="16" fill="#F9ED69" id="XMLID_934_" r="3"></circle><path d="M16,13c-1.086,0-2.028,0.582-2.554,1.446C13.9,14.168,14.429,14,15,14c1.657,0,3,1.343,3,3 c0,0.571-0.168,1.1-0.446,1.554C18.418,18.028,19,17.086,19,16C19,14.343,17.657,13,16,13z" fill="#FBF4A5" id="XMLID_378_"></path><path d=" M27.758,10.366l-1-1.732c-0.552-0.957-1.775-1.284-2.732-0.732L23.5,8.206C21.5,9.36,19,7.917,19,5.608V5c0-1.105-0.895-2-2-2h-2 c-1.105,0-2,0.895-2,2v0.608c0,2.309-2.5,3.753-4.5,2.598L7.974,7.902C7.017,7.35,5.794,7.677,5.242,8.634l-1,1.732 c-0.552,0.957-0.225,2.18,0.732,2.732L5.5,13.402c2,1.155,2,4.041,0,5.196l-0.526,0.304c-0.957,0.552-1.284,1.775-0.732,2.732 l1,1.732c0.552,0.957,1.775,1.284,2.732,0.732L8.5,23.794c2-1.155,4.5,0.289,4.5,2.598V27c0,1.105,0.895,2,2,2h2 c1.105,0,2-0.895,2-2v-0.608c0-2.309,2.5-3.753,4.5-2.598l0.526,0.304c0.957,0.552,2.18,0.225,2.732-0.732l1-1.732 c0.552-0.957,0.225-2.18-0.732-2.732L26.5,18.598c-2-1.155-2-4.041,0-5.196l0.526-0.304C27.983,12.546,28.311,11.323,27.758,10.366z " fill="none" id="XMLID_857_" stroke="#200F60" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"></path></g></svg>
+                            </div>
+                            <div class="kpi-info"><h3>Produção Total</h3><p id="totalProduzido">0</p></div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="kpi-card refugo">
+                            <div class="kpi-icon-container">
+                                <!-- SVG SCRAP -->
+                                <svg height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 511.844 511.844" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <polygon style="fill:#4FC2E9;" points="426.541,127.957 341.239,127.957 341.239,234.598 469.2,234.598 "></polygon> <path style="fill:#E6E9ED;" d="M469.2,217.93l-42.659-89.973h-85.302l0.031-42.644H85.38L0,170.617v149.29v21.338v63.98h42.721 l21.298-21.119l447.684-0.219v-42.643v-21.338v-21.337h0.141v-62.302L469.2,217.93z M64.011,362.769h-8.778l-6.225,6.186 L33.95,383.888H21.329v-42.643v-21.338v-140.45l72.876-72.821h225.712l-0.016,21.306l-0.016,21.353h21.353h71.806l36.88,77.773 l3.437,7.279l0.594,0.25h-116.09v128.047L64.011,362.769z"></path> <path style="fill:#E9573F;" d="M426.604,85.314h-100.11v21.322h100.109c5.889,0,10.669-4.78,10.669-10.669 S432.492,85.314,426.604,85.314z"></path> <polygon style="fill:#FC6E51;" points="341.239,85.314 85.38,85.314 0,170.617 0,319.906 0,341.244 0,405.225 42.721,405.225 64.019,384.106 341.239,383.949 "></polygon> <g> <path style="fill:#F5F7FA;" d="M257.929,189.876c-0.515-1.141-1.234-2.219-2.179-3.155c-4.163-4.171-10.911-4.171-15.074,0 c-3.194,3.187-3.936,7.903-2.226,11.809c9.903,19.947,6.553,44.861-10.036,61.45c-13.082,13.066-31.311,17.909-48.22,14.534 c2.726-3.053,3.569-7.521,1.789-11.488c-2.414-5.357-8.724-7.764-14.097-5.342l-19.455,8.731c-5.374,2.421-7.771,8.724-5.35,14.097 l8.74,19.463c2.413,5.374,8.724,7.748,14.097,5.343c4.28-1.905,6.662-6.311,6.232-10.747c24.703,6.311,52.007-0.188,71.337-19.525 C266.535,252.014,271.323,217.665,257.929,189.876z"></path> <path style="fill:#F5F7FA;" d="M144.464,178.238c13.082-13.074,31.311-17.9,48.212-14.526c-2.718,3.046-3.562,7.513-1.781,11.48 c2.414,5.374,8.724,7.764,14.097,5.358l19.447-8.748c5.374-2.405,7.771-8.731,5.358-14.089l-8.74-19.463 c-2.413-5.374-8.731-7.764-14.097-5.358c-4.28,1.938-6.662,6.326-6.24,10.747c-24.696-6.311-52,0.188-71.337,19.525 c-23.04,23.04-27.828,57.389-14.433,85.177c0.515,1.141,1.234,2.219,2.171,3.155c4.163,4.171,10.918,4.171,15.082,0 c3.194-3.187,3.928-7.903,2.226-11.809C124.525,219.742,127.867,194.844,144.464,178.238z"></path> </g> <g> <path style="fill:#424953;" d="M170.682,373.234c0,29.428-23.868,53.296-53.312,53.296s-53.32-23.868-53.32-53.296 c0-29.46,23.876-53.328,53.32-53.328C146.815,319.906,170.682,343.775,170.682,373.234z"></path> <path style="fill:#424953;" d="M277.321,373.234c0,29.428-23.868,53.296-53.319,53.296c-29.444,0-53.32-23.868-53.32-53.296 c0-29.46,23.875-53.328,53.32-53.328C253.454,319.906,277.321,343.775,277.321,373.234z"></path> <path style="fill:#424953;" d="M469.2,373.234c0,29.428-23.884,53.296-53.327,53.296c-29.444,0-53.328-23.868-53.328-53.296 c0-29.46,23.884-53.328,53.328-53.328C445.317,319.906,469.2,343.775,469.2,373.234z"></path> </g> <g> <path style="fill:#F5F7FA;" d="M128.031,373.234c0,5.873-4.772,10.652-10.661,10.652s-10.668-4.779-10.668-10.652 c0-5.904,4.78-10.685,10.668-10.685S128.031,367.33,128.031,373.234z"></path> <path style="fill:#F5F7FA;" d="M426.526,373.234c0,5.873-4.764,10.652-10.652,10.652s-10.653-4.779-10.653-10.652 c0-5.904,4.765-10.685,10.653-10.685S426.526,367.33,426.526,373.234z"></path> <path style="fill:#F5F7FA;" d="M234.663,373.234c0,5.873-4.772,10.652-10.661,10.652s-10.661-4.779-10.661-10.652 c0-5.904,4.772-10.685,10.661-10.685C229.891,362.55,234.663,367.33,234.663,373.234z"></path> </g> <polygon style="fill:#E9573F;" points="0,405.225 42.721,405.225 64.019,384.106 0,384.106 "></polygon> </g></svg>
+                            </div>
+                            <div class="kpi-info"><h3>Refugo Total</h3><p id="totalRefugo">0</p></div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="kpi-card performance">
+                            <div class="kpi-icon-container">
+                                <!-- SVG DASHBOARD -->
+                               <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <circle style="fill:#E6E5E5;" cx="256" cy="256" r="256"></circle> <g> <path style="fill:#232323;" d="M459.96,398.704v-275.96c0-6.6-5.4-12-12-12H64.112c-6.6,0-12,5.4-12,12v275.952 C52.112,398.704,460.968,398.704,459.96,398.704z"></path> <rect x="67.112" y="125.744" style="fill:#232323;" width="377.84" height="257.92"></rect> </g> <rect x="16" y="398.704" style="fill:#D8D8D8;" width="479.92" height="7.504"></rect> <polygon style="fill:#AAAAAA;" points="472.008,421.192 40.08,421.192 16.08,406.2 496,406.2 "></polygon> <g style="opacity:0.7;"> <path style="fill:#FFFFFF;" d="M296.304,398.704h-80.688c0.768,4.208,4.52,7.504,9.216,7.504h62.248 C291.784,406.2,295.544,402.912,296.304,398.704z"></path> </g> <g> <rect x="368" y="351.752" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="316.8" y="351.752" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="265.6" y="351.752" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="214.4" y="351.752" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="163.2" y="351.752" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="112" y="351.752" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="368" y="149.696" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="316.8" y="149.696" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="265.6" y="149.696" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="214.4" y="149.696" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="163.2" y="149.696" style="fill:#E6E5E5;" width="32" height="8"></rect> <rect x="112" y="149.696" style="fill:#E6E5E5;" width="32" height="8"></rect> </g> <rect x="273.6" y="274.72" style="fill:#DB2B42;" width="15.784" height="34.616"></rect> <rect x="299.28" y="254.944" style="fill:#8AD5DD;" width="15.784" height="54.4"></rect> <rect x="324.888" y="232.72" style="fill:#DB2B42;" width="15.784" height="76.656"></rect> <rect x="350.536" y="210.44" style="fill:#8AD5DD;" width="15.784" height="98.912"></rect> <rect x="376.16" y="195.6" style="fill:#DB2B42;" width="15.784" height="113.744"></rect> <circle style="fill:#E6E5E5;" cx="171.2" cy="254.72" r="60.408"></circle> <path style="fill:#8AD5DD;" d="M171.2,254.72l-50.528,33.088c10.792,16.448,29.384,27.32,50.528,27.32 c33.36,0,60.408-27.048,60.408-60.408L171.2,254.72L171.2,254.72z"></path> <path style="fill:#DB2B42;" d="M192.52,198.2l-21.32,56.52h60.408C231.608,228.864,215.36,206.816,192.52,198.2z"></path> </g></svg>
+                            </div>
+                            <div class="kpi-info"><h3>Yield (Qualidade)</h3><p id="percentualQualidade">0%</p></div>
+                        </div>
                     </div>
                 </div>
-                <div class="kpi-card refugo">
-                    <div class="kpi-icon">🗑️</div>
-                    <div class="kpi-info">
-                        <h3>Refugo Total</h3>
-                        <p id="totalRefugo">0</p>
-                    </div>
-                </div>
-                <div class="kpi-card performance">
-                    <div class="kpi-icon">📈</div>
-                    <div class="kpi-info">
-                        <h3>Índice de Qualidade</h3>
-                        <p id="percentualQualidade">0%</p>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Gráficos -->
-            <section class="charts-grid">
-                <div class="chart-wrapper">
-                    <div class="chart-header">
-                        <h2 id="titleProd">Produção por Máquina</h2>
-                        <button id="btnVoltarProd" class="back-btn" style="display:none">← Voltar</button>
+                <div class="row g-4">
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-wrapper">
+                            <div class="chart-header"><h2>Produção por Máquina</h2></div>
+                            <div id="chartProd" class="echart-container"></div>
+                        </div>
                     </div>
-                    <div id="chartProd" class="echart-container"></div>
-                </div>
-                <div class="chart-wrapper">
-                    <div class="chart-header">
-                        <h2 id="titleRef">Refugo por Setor</h2>
-                        <button id="btnVoltarRef" class="back-btn" style="display:none">← Voltar</button>
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-wrapper">
+                            <div class="chart-header">
+                                <h2 id="titleRef">Refugo por Setor</h2>
+                                <button id="btnVoltarRef" class="back-btn" style="display:none">VOLTAR</button>
+                            </div>
+                            <div id="chartRef" class="echart-container"></div>
+                        </div>
                     </div>
-                    <div id="chartRef" class="echart-container"></div>
                 </div>
-            </section>
+            </div>
+
+            <!-- ABA 2: COMPARATIVO MENSAL -->
+            <div id="tab-mensal" class="tab-content">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="chart-wrapper">
+                            <div class="chart-header"><h2>Consolidado: Prod vs Refugo (2025 vs 2026)</h2></div>
+                            <div id="chartCompConsolidado" class="echart-container" style="height: 500px;"></div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-wrapper">
+                            <div class="chart-header"><h2>Produção Mensal Lado a Lado</h2></div>
+                            <div id="chartCompProd" class="echart-container"></div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="chart-wrapper">
+                            <div class="chart-header"><h2>Refugo Quantidade Lado a Lado</h2></div>
+                            <div id="chartCompRefQtd" class="echart-container"></div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="chart-wrapper">
+                            <div class="chart-header"><h2>Tendência de Índice de Refugo (%)</h2></div>
+                            <div id="chartCompRefPct" class="echart-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
 </html>
