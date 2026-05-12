@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Produção - Qualidade</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Dashboard de Produtividade e Refugo</h1>
+        <div class="filters">
+            <div class="filter-group">
+                <label>Início:</label>
+                <input type="date" id="dateStart">
+            </div>
+            <div class="filter-group">
+                <label>Fim:</label>
+                <input type="date" id="dateEnd">
+            </div>
+            <div class="filter-group">
+                <label>Setor:</label>
+                <select id="filterSetor"><option value="todos">Todos</option></select>
+            </div>
+            <button id="btnFiltrar">Aplicar Filtros</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <section class="summary-cards">
+            <div class="card">
+                <h3>Total Produzido (Peças)</h3>
+                <p id="totalProduzido" class="valor-producao">0</p>
+            </div>
+            <div class="card">
+                <h3>Total Refugo (Peças)</h3>
+                <p id="totalRefugo" class="valor-refugo">0</p>
+            </div>
+            <div class="card">
+                <h3>% Refugo</h3>
+                <p id="percentualRefugo">0%</p>
+            </div>
+        </section>
+
+        <section class="charts-section">
+            <div class="chart-container">
+                <h3>Produção por Máquina</h3>
+                <canvas id="chartProdutividade"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Refugo por Setor</h3>
+                <canvas id="chartRefugo"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

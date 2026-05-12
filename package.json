@@ -1,0 +1,19 @@
+{
+  "name": "dashboard-produtividade",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "fast-csv": "^5.0.7",
+    "fs-extra": "^11.3.5",
+    "oracledb": "^6.10.0"
+  }
+}
